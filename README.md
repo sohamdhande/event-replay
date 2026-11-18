@@ -1,14 +1,18 @@
-# event-replay
+# @mavericks78/event-replay
+
+[![npm version](https://img.shields.io/npm/v/%40mavericks78%2Fevent-replay)](https://www.npmjs.com/package/@mavericks78/event-replay)
+[![CI](https://github.com/sohamdhande/event-replay/actions/workflows/ci.yml/badge.svg)](https://github.com/sohamdhande/event-replay/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 A small, dependency-free, framework-agnostic JavaScript event-history engine. It records application events and uses a developer-supplied pure reducer to reconstruct application state, navigate backward and forward through history, undo and redo changes, and export or import event timelines as versioned JSON.
 
-> **Scope note:** `event-replay` is an application state and domain-event history engine. It is **not** a browser session recorder and does not capture DOM mutations, screenshots, mouse movements, clicks, keystrokes, or network traffic.
+> **Scope note:** `@mavericks78/event-replay` is an application state and domain-event history engine. It is **not** a browser session recorder and does not capture DOM mutations, screenshots, mouse movements, clicks, keystrokes, or network traffic.
 
 ## Problem Being Solved
 
 When debugging or supporting a stateful application, inspecting only the latest state snapshot rarely explains *how* the application reached that state. Mutating state in place discards the sequence of transitions that led there, making undo/redo, time-travel inspection, and bug reproduction difficult to implement reliably.
 
-`event-replay` stores an immutable, validated sequence of application events and reconstructs state deterministically with your reducer. Given the same initial state, reducer, and event log, you can step to any point in history or replay an exported event log elsewhere to reproduce the exact state.
+`@mavericks78/event-replay` stores an immutable, validated sequence of application events and reconstructs state deterministically with your reducer. Given the same initial state, reducer, and event log, you can step to any point in history or replay an exported event log elsewhere to reproduce the exact state.
 
 ## Why Use It?
 
@@ -39,14 +43,16 @@ When debugging or supporting a stateful application, inspecting only the latest 
 
 ## Installation
 
+Install from [npm](https://www.npmjs.com/package/@mavericks78/event-replay):
+
 ```bash
-npm install event-replay
+npm install @mavericks78/event-replay
 ```
 
 ## Quick Start
 
 ```js
-import { createReplay } from "event-replay";
+import { createReplay } from "@mavericks78/event-replay";
 
 const history = createReplay({
   initialState: { count: 0 },
@@ -281,7 +287,7 @@ A defensive copy of the state at the imported cursor `position`.
 ### Undo and Redo Example
 
 ```js
-import { createReplay } from "event-replay";
+import { createReplay } from "@mavericks78/event-replay";
 
 const editor = createReplay({
   initialState: { text: "" },
@@ -309,10 +315,10 @@ console.log(editor.redo());     // { text: 'Hello world' }
 
 ### Timeline Replacement Behavior
 
-`event-replay` maintains **one active linear timeline**. It does **not** maintain persistent parallel branches. If you seek backward (or undo) and dispatch a new event, all events after the current cursor are discarded and replaced by the new event:
+`@mavericks78/event-replay` maintains **one active linear timeline**. It does **not** maintain persistent parallel branches. If you seek backward (or undo) and dispatch a new event, all events after the current cursor are discarded and replaced by the new event:
 
 ```js
-import { createReplay } from "event-replay";
+import { createReplay } from "@mavericks78/event-replay";
 
 const history = createReplay({
   initialState: { steps: [] },
@@ -339,7 +345,7 @@ console.log(history.canRedo());   // false
 ### Export and Import Example
 
 ```js
-import { createReplay } from "event-replay";
+import { createReplay } from "@mavericks78/event-replay";
 
 function reducer(state, event) {
   switch (event.type) {
@@ -389,7 +395,7 @@ Full replay: { count: 3 }
 - **JSON-only data model:** Only supported JSON values may be stored in state, payloads, and `meta`. Non-JSON objects (`Date`, `Map`, `Set`, `RegExp`, class instances, functions, `BigInt`, `undefined`, etc.) are rejected rather than silently transformed.
 - **Pure deterministic reducers required:** Reducers must not read wall-clock time, generate random values, perform I/O, or depend on mutable external state. Compute non-deterministic values before calling `dispatch()` and include them in the event payload.
 - **Single active linear timeline:** Dispatching after seeking backward discards the previous future timeline; persistent multi-branch history trees are not supported.
-- **Manual event dispatching:** `event-replay` does not observe objects or record DOM/browser interactions automatically. Applications must call `dispatch()` explicitly.
+- **Manual event dispatching:** `@mavericks78/event-replay` does not observe objects or record DOM/browser interactions automatically. Applications must call `dispatch()` explicitly.
 - **No reducer serialization:** `export()` serializes only data (initial state, events, cursor). The importing instance must supply a compatible reducer and an equivalent `initialState`.
 
 ## Performance Considerations
@@ -402,7 +408,7 @@ Full replay: { count: 3 }
 
 ## Running Tests
 
-`event-replay` uses Node.js's built-in test runner (`node:test`) and strict assertions (`node:assert/strict`) with zero external test dependencies.
+`@mavericks78/event-replay` uses Node.js's built-in test runner (`node:test`) and strict assertions (`node:assert/strict`) with zero external test dependencies.
 
 ```bash
 npm run check           # Syntax check source, tests, and example

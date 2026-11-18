@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for considering a contribution to `event-replay`.
+Thank you for considering a contribution to `@mavericks78/event-replay`.
 
 ## Before you start
 

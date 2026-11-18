@@ -62,7 +62,7 @@ jobs:
           npm install --no-audit --no-fund "$GITHUB_WORKSPACE/$TARBALL"
           node --input-type=module -e '
             import assert from "node:assert/strict";
-            import { createReplay } from "event-replay";
+            import { createReplay } from "@mavericks78/event-replay";
             const history = createReplay({
               initialState: { count: 0 },
               reducer(state, event) {

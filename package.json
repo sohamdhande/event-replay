@@ -1,5 +1,5 @@
 {
-  "name": "event-replay",
+  "name": "@mavericks78/event-replay",
   "version": "0.1.0",
   "description": "A dependency-free JavaScript event history engine with deterministic replay, seeking, undo, and redo.",
   "type": "module",
@@ -34,7 +34,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/sohamdhande/event-replay.git"
+    "url": "git+https://github.com/sohamdhande/event-replay.git"
   },
   "bugs": {
     "url": "https://github.com/sohamdhande/event-replay/issues"
