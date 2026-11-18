@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Node.js ${{ matrix.node-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22, 24, 26]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Print runtime versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Install dependencies (if any)
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install --no-audit --no-fund
+          fi
+
+      - name: Run syntax checks
+        run: npm run check
+
+      - name: Run test suite
+        run: npm test
+
+      - name: Run test coverage
+        run: npm run test:coverage
+
+      - name: Execute example
+        run: node examples/counter.js
+
+      - name: Verify packaging and tarball consumer install
+        run: |
+          npm pack --dry-run --json
+          TARBALL=$(npm pack --silent)
+          TMPDIR=$(mktemp -d)
+          trap 'rm -rf "$TMPDIR" "$GITHUB_WORKSPACE/$TARBALL"' EXIT
+          cd "$TMPDIR"
+          npm init -y > /dev/null
+          npm pkg set type=module
+          npm install --no-audit --no-fund "$GITHUB_WORKSPACE/$TARBALL"
+          node --input-type=module -e '
+            import assert from "node:assert/strict";
+            import { createReplay } from "event-replay";
+            const history = createReplay({
+              initialState: { count: 0 },
+              reducer(state, event) {
+                if (event.type === "inc") return { count: state.count + event.payload };
+                throw new Error(`Unknown event: ${event.type}`);
+              }
+            });
+            assert.deepEqual(history.dispatch({ type: "inc", payload: 2 }), { count: 2 });
+            assert.deepEqual(history.undo(), { count: 0 });
+            assert.deepEqual(history.redo(), { count: 2 });
+            assert.deepEqual(history.seek(0), { count: 0 });
+            const exported = history.export();
+            const restored = createReplay({
+              initialState: { count: 0 },
+              reducer(state, event) {
+                if (event.type === "inc") return { count: state.count + event.payload };
+                throw new Error(`Unknown event: ${event.type}`);
+              }
+            });
+            assert.deepEqual(restored.import(exported), { count: 0 });
+            assert.deepEqual(restored.replay(), { count: 2 });
+          '
